@@ -1,0 +1,105 @@
+
+
+# install
+
+This package now is released at github.com, and you can install it, as follows:
+
+```{r}
+devtools::install_github("JPingAMMS/tidyOmics")
+```
+
+The related dependency packages will also be installed.
+
+# Usage
+
+## Example using dataset with 4 omics and 3 time points, from AMS dataset.
+
+### load packages
+
+```{r}
+# packages
+library(tidyOmics)
+
+```
+
+### Read-in data
+
+#### omics data
+
+```{r}
+# omics dataframe
+load(file = "E:/pj/r_package_publish/tidyOmics_data/omics_mat.RData")
+head(omic3)[,1:5]
+```
+
+#### phenotype data
+
+```{r}
+# phenotype dataframe
+load(file = "E:/pj/r_package_publish/tidyOmics_data/pheno_mat.RData")
+head(pheno)[,1:5]
+```
+
+```{r}
+samplelist_base  = pheno %>% filter(group=="Base") %>% pull(uniqueID)
+samplelist_day1  = pheno %>% filter(group=="Day1") %>% pull(uniqueID)
+samplelist_day90 = pheno %>% filter(group=="Day90") %>% pull(uniqueID)
+
+samplelist_base_in_omic3 = intersect(samplelist_base, names(omic3))
+samplelist_day1_in_omic3 = intersect(samplelist_day1, names(omic3))
+samplelist_day90_in_omic3 = intersect(samplelist_day90, names(omic3))
+
+omic3_base  = omic3 %>% select(symbol, all_of(samplelist_base_in_omic3))
+omic3_day1  = omic3 %>% select(symbol, all_of(samplelist_day1_in_omic3))
+omic3_day90 = omic3 %>% select(symbol, all_of(samplelist_day90_in_omic3))
+
+plot_cor_heatmap_pheno(omic_df = omic3,
+                       pheno_df = pheno,
+                       gene_int = "MCUR1",
+                       pheno_int = NA,
+                       method="pearson")
+
+plot_cor_heatmap_pheno(omic_df = omic3_day90,
+                       pheno_df = pheno,
+                       gene_int = "MCUR1",
+                       pheno_int = NA,
+                       method="pearson")
+
+```
+
+## Example using RNA_tpm and pheno from in-house T102 dataset
+
+### Read-in data
+
+```{r}
+load("E:/pj/r_package_publish/zhou-T102/T102_omics_mat.RData")
+load("E:/pj/r_package_publish/zhou-T102/T102_pheno_mat.RData")
+```
+
+### associations between MCM2 gene and all available phenotypes.
+
+```{r}
+plot_cor_heatmap_pheno(omic_df = omic3,
+                       pheno_df = pheno,
+                       gene_int = "MCM2",
+                       pheno_int = NA,
+                       method="pearson")
+```
+
+### associations between MCM2 gene and HGB.
+
+```{r}
+var1_df = omic3 %>% filter(symbol=="MCM2")
+var2_df = pheno %>% select(uniqueID, HGB)
+  # var2_df = omic3 %>% filter(symbol == "HIF1A")
+  # var2_df = pheno %>% select(uniqueID, DBP)
+
+plot_cor_line(var1_df = var1_df,
+              var2_df = var2_df,
+              method="pearson")
+
+```
+
+
+
+

@@ -9,7 +9,7 @@ library(dplyr)
 #' @param group
 #' @param test
 #'
-#' @return
+#' @return boxplot
 #' @importFrom dplyr %>%
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
@@ -57,6 +57,8 @@ plot_group_box = function(omic_df,
     dplyr::left_join(pheno_grp, by=c("uniqueID"="uniqueID")) %>%
     na.omit()
 
+  cat(ncol(omic_pheno), " samples are included in the analysis.")
+
   library(ggpubr)
   my_comparisons <- comparisons
   p <- ggboxplot(omic_pheno, x = groups, y = gene,
@@ -79,7 +81,7 @@ plot_group_box = function(omic_df,
 #' @param var2_df
 #' @param method
 #'
-#' @return
+#' @return lineplot
 #' @importFrom dplyr %>%
 #' @importFrom dplyr filter
 #' @importFrom dplyr left_join
@@ -133,6 +135,8 @@ plot_cor_line = function(var1_df,
     left_join(var2_in_omic2, by=c("SampleID"="SampleID")) %>%
     na.omit()
 
+  cat(ncol(omic), " samples are included in the analysis.")
+
   p = ggscatter(omic, x=var1, y = var2,
             size = 2, # 点的颜色与大小
             add = "reg.line",  # 添加回归线
@@ -155,7 +159,7 @@ plot_cor_line = function(var1_df,
 #' @param gene_int
 #' @param pheno_int
 #'
-#' @return
+#' @return heatmap
 #' @importFrom dplyr %>%
 #' @export
 #'
@@ -175,17 +179,18 @@ plot_cor_heatmap_pheno = function(omic_df,
   }
 
   if(is.na(pheno_int)){
-    pheno_list <- c("Age", "height", "weight", "BMI", "LLQ",
-                    "WBC", "LYMPH#", "LYMPH%", "MONO#", "MONO%",
-                    "BASO#","BASO%","EO#", "EO%", "NEUT#", "NEUT%", "MID%", "MID#",
-                    "HCT", "HGB",  "MCH", "RBC", "RDW-CV", "RDW-SD", "MCHC", "MCV", "MPV",
-                    "PCT", "PDW", "P-LCR", "PLT",
-                    "PEF", "FEV1", "FVC", "FEF25", "FEF50", "FEF75", "FEV1%VCMAX", "VCMAX",
-                    "DBP", "SBP", "HeartRatio", "SpO2",
-                    "grip", # "gripL", "gripR",
-                    "ALT", "AST", "AST_ALT", "ALP", "GGT",
-                    "TP", "GLB", "ALB", "Alb_Glb_ratio", "IBIL", "DBIL", "TBIL",
-                    "TBA", "GLU", "CREA", "UREA", "UA", "K", "Na", "CL")
+    # pheno_list <- c("Age", "height", "weight", "BMI", "LLQ",
+    #                 "WBC", "LYMPH#", "LYMPH%", "MONO#", "MONO%",
+    #                 "BASO#","BASO%","EO#", "EO%", "NEUT#", "NEUT%", "MID%", "MID#",
+    #                 "HCT", "HGB",  "MCH", "RBC", "RDW-CV", "RDW-SD", "MCHC", "MCV", "MPV",
+    #                 "PCT", "PDW", "P-LCR", "PLT",
+    #                 "PEF", "FEV1", "FVC", "FEF25", "FEF50", "FEF75", "FEV1%VCMAX", "VCMAX",
+    #                 "DBP", "SBP", "HeartRatio", "SpO2",
+    #                 "grip", # "gripL", "gripR",
+    #                 "ALT", "AST", "AST_ALT", "ALP", "GGT",
+    #                 "TP", "GLB", "ALB", "Alb_Glb_ratio", "IBIL", "DBIL", "TBIL",
+    #                 "TBA", "GLU", "CREA", "UREA", "UA", "K", "Na", "CL")
+    pheno_list <- names(pheno[-1])
   } else {
     pheno_list <- pheno_int
   }
@@ -202,6 +207,8 @@ plot_cor_heatmap_pheno = function(omic_df,
     tibble::rownames_to_column(var="SampleID")
 
   omic_pheno = pheno %>% dplyr::left_join(omic_mat, by=c("uniqueID"="SampleID"))
+
+  cat(ncol(omic_pheno), " samples are included in the analysis.")
 
   # calc cor & p
   library(ggcorrplot)
@@ -227,10 +234,3 @@ plot_cor_heatmap_pheno = function(omic_df,
   return(p)
 }
 
-
-#
-plot_cor_heatmap_pheno = function(var1,
-                                  var2,
-                                  method="pearson"){
-
-}
